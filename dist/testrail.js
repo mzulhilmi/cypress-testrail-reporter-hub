@@ -40,6 +40,7 @@ var chalk = require('chalk');
 var TestRail = /** @class */ (function () {
     function TestRail(options) {
         this.options = options;
+        this.runId = null;
         this.includeAll = true;
         this.caseIds = [];
         this.base = options.host + "/index.php?/api/v2";
@@ -79,26 +80,34 @@ var TestRail = /** @class */ (function () {
                         _a.caseIds = _b.sent();
                         _b.label = 2;
                     case 2:
-                        axios({
-                            method: 'post',
-                            url: this.base + "/add_run/" + this.options.projectId,
-                            headers: { 'Content-Type': 'application/json' },
-                            auth: {
-                                username: this.options.username,
-                                password: this.options.password,
-                            },
-                            data: JSON.stringify({
-                                suite_id: this.options.suiteId,
-                                name: name,
-                                description: description,
-                                include_all: this.includeAll,
-                                case_ids: this.caseIds
-                            }),
-                        })
-                            .then(function (response) {
-                            _this.runId = response.data.id;
-                        })
-                            .catch(function (error) { return console.error(error); });
+                        if (this.options.runId === undefined) {
+                            axios({
+                                method: 'post',
+                                url: this.base + "/add_run/" + this.options.projectId,
+                                headers: { 'Content-Type': 'application/json' },
+                                auth: {
+                                    username: this.options.username,
+                                    password: this.options.password,
+                                },
+                                data: JSON.stringify({
+                                    suite_id: this.options.suiteId,
+                                    name: name,
+                                    description: description,
+                                    include_all: this.includeAll,
+                                    case_ids: this.caseIds
+                                }),
+                            })
+                                .then(function (response) {
+                                _this.runId = response.data.id;
+                                _this.options.runId = _this.runId;
+                                _this.description = description;
+                            })
+                                .catch(function (error) { return console.error(error); });
+                        }
+                        else {
+                            this.description = description;
+                            this.runId = this.options.runId;
+                        }
                         return [2 /*return*/];
                 }
             });
@@ -117,19 +126,43 @@ var TestRail = /** @class */ (function () {
     };
     TestRail.prototype.publishResults = function (results) {
         var _this = this;
+        if (results.length > 0) {
+            return axios({
+                method: 'post',
+                url: this.base + "/add_results_for_cases/" + this.runId,
+                headers: { 'Content-Type': 'application/json' },
+                auth: {
+                    username: this.options.username,
+                    password: this.options.password,
+                },
+                data: JSON.stringify({ results: results }),
+            })
+                .then(function (response) {
+                console.log('\n', chalk.magenta.underline.bold('(TestRail Reporter)'));
+                console.log('\n', " - Results are published to " + chalk.magenta(_this.options.host + "/index.php?/runs/view/" + _this.runId), '\n');
+            })
+                .catch(function (error) { return console.error(error); });
+        }
+    };
+    TestRail.prototype.updateRun = function (caseIds, results) {
+        var _this = this;
         return axios({
             method: 'post',
-            url: this.base + "/add_results_for_cases/" + this.runId,
+            url: this.base + "/update_run/" + this.runId,
             headers: { 'Content-Type': 'application/json' },
             auth: {
                 username: this.options.username,
-                password: this.options.password,
+                password: this.options.password
             },
-            data: JSON.stringify({ results: results }),
+            data: JSON.stringify({
+                suite_id: this.options.suiteId,
+                description: this.description,
+                include_all: false,
+                case_ids: caseIds
+            })
         })
-            .then(function (response) {
-            console.log('\n', chalk.magenta.underline.bold('(TestRail Reporter)'));
-            console.log('\n', " - Results are published to " + chalk.magenta(_this.options.host + "/index.php?/runs/view/" + _this.runId), '\n');
+            .then(function () {
+            _this.publishResults(results);
         })
             .catch(function (error) { return console.error(error); });
     };

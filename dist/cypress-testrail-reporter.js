@@ -34,7 +34,7 @@ var CypressTestRailReporter = /** @class */ (function (_super) {
         runner.on('start', function () {
             var executionDateTime = moment().format('MMM Do YYYY, HH:mm (Z)');
             var name = (reporterOptions.runName || 'Automated test run') + " " + executionDateTime;
-            var description = 'For the Cypress run visit https://dashboard.cypress.io/#/projects/runs';
+            var description = "For the Cypress run visit https://dashboard.cypress.io/#/projects/runs /n Last Run: " + executionDateTime;
             _this.testRail.createRun(name, description);
         });
         runner.on('pass', function (test) {
@@ -67,15 +67,8 @@ var CypressTestRailReporter = /** @class */ (function (_super) {
             var _a;
         });
         runner.on('end', function () {
-            if (_this.results.length == 0) {
-                console.log('\n', chalk.magenta.underline.bold('(TestRail Reporter)'));
-                console.warn('\n', 'No testcases were matched. Ensure that your tests are declared correctly and matches Cxxx', '\n');
-                _this.testRail.deleteRun();
-                return;
-            }
-            // publish test cases results & close the run
-            _this.testRail.publishResults(_this.results)
-                .then(function () { return _this.testRail.closeRun(); });
+            _this.testRail.publishResults(_this.results);
+            //.then(() => this.testRail.closeRun());
         });
         return _this;
     }
