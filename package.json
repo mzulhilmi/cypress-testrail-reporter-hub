@@ -1,6 +1,6 @@
 {
-  "name": "cypress-testrail-reporter",
-  "version": "1.2.3",
+  "name": "cypress-testrail-reporter-hub",
+  "version": "1.0.2",
   "description": "A Testrail reporter for cypress including TestRail API basic library",
   "main": "index.js",
   "private": false,
@@ -10,17 +10,17 @@
     "reporter"
   ],
   "author": {
-    "name": "Milutin Savovic",
-    "email": "mickosavovic@gmail.com"
+    "name": "zulhilmi.salahan",
+    "email": "muhammadzulhilmi2493@gmail.com"
   },
   "license": "MIT",
   "readmeFilename": "README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Vivify-Ideas/cypress-testrail-reporter.git"
+    "url": "https://github.com/Vivify-Ideas/cypress-testrail-reporter-hub.git"
   },
   "bugs": {
-    "url": "https://github.com/Vivify-Ideas/cypress-testrail-reporter/issues"
+    "url": "https://github.com/Vivify-Ideas/cypress-testrail-reporter-hub/issues"
   },
   "scripts": {
     "tsc": "tsc",
